@@ -6,6 +6,7 @@ import io.hyungkyu.app.account.infra.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,6 +15,7 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final JavaMailSender mailSender;
+    private final PasswordEncoder passwordEncoder;
 
     public void signUp(SignUpForm signUpForm) {
         Account newAccount = saveNewAccount(signUpForm);
@@ -25,7 +27,7 @@ public class AccountService {
         Account account = Account.builder()
                 .email(signUpForm.getEmail())
                 .nickname(signUpForm.getNickname())
-                .password(signUpForm.getPassword())
+                .password(passwordEncoder.encode(signUpForm.getPassword()))
                 .notificationSetting(Account.NotificationSetting.builder() // 알림설정 중 웹 알림은 true로 설정해줌
                         .studyCreatedByWeb(true)
                         .studyUpdatedByWeb(true)

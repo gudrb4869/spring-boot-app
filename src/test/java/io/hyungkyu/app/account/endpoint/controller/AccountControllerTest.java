@@ -1,5 +1,6 @@
 package io.hyungkyu.app.account.endpoint.controller;
 
+import io.hyungkyu.app.account.domain.entity.Account;
 import io.hyungkyu.app.account.infra.repository.AccountRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -59,14 +60,16 @@ class AccountControllerTest {
     void signUpSubmit() throws Exception {
         mockMvc.perform(post("/sign-up")
                         .param("nickname", "nickname")
-                        .param("email", "email@gmail.com")
+                        .param("email", "email@email.com")
                         .param("password", "1234!@#$")
                         .with(csrf()))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/"));
 
-        assertTrue(accountRepository.existsByEmail("email@gmail.com"));
+        assertTrue(accountRepository.existsByEmail("email@email.com"));
+        Account account = accountRepository.findByEmail("email@email.com");
+        assertNotEquals(account.getPassword(), "1234!@#$");
 
         then(mailSender)
                 .should()
