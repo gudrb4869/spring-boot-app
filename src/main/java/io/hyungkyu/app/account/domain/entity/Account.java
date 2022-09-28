@@ -4,6 +4,7 @@ import io.hyungkyu.app.account.domain.support.ListStringConverter;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,6 +30,8 @@ public class Account extends AuditingEntity {
     
     private String emailToken;
 
+    private LocalDateTime joinedAt;
+
     @Embedded
     private Profile profile;
 
@@ -38,7 +41,12 @@ public class Account extends AuditingEntity {
     public void generateToken() {
         this.emailToken = UUID.randomUUID().toString();
     }
-    
+
+    public void verified() {
+        this.isValid = true;
+        joinedAt = LocalDateTime.now();
+    }
+
     @Embeddable
     @NoArgsConstructor(access = AccessLevel.PROTECTED) @AllArgsConstructor(access = AccessLevel.PROTECTED)
     @Builder @Getter @ToString
@@ -59,8 +67,8 @@ public class Account extends AuditingEntity {
     public static class NotificationSetting {
         private boolean studyCreatedByEmail;
         private boolean studyCreatedByWeb;
-        private boolean studyRegistrationResultByEmailByEmail;
-        private boolean studyRegistrationResultByEmailByWeb;
+        private boolean studyRegistrationResultByEmail;
+        private boolean studyRegistrationResultByWeb;
         private boolean studyUpdatedByEmail;
         private boolean studyUpdatedByWeb;
     }

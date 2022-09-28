@@ -3,6 +3,7 @@ package io.hyungkyu.app.account.endpoint.controller;
 import io.hyungkyu.app.account.application.AccountService;
 import io.hyungkyu.app.account.domain.entity.Account;
 import io.hyungkyu.app.account.endpoint.controller.validator.SignUpFormValidator;
+import io.hyungkyu.app.account.infra.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
@@ -51,5 +52,24 @@ public class AccountController {
         */
         accountService.signUp(signUpForm);
         return "redirect:/";
+    }
+
+    private final AccountRepository accountRepository;
+
+    @GetMapping("/check-email-token")
+    public String verifyEmail(String token, String email, Model model) {
+        Account account = accountService.findAccountByEmail(email);
+        if (account == null) {
+            model.addAttribute("error", "wrong.email");
+            return "account/email-verification";
+        }
+        if (!token.equals(account.getEmailToken())) {
+            model.addAttribute("error", "wrong.token");
+            return "account/email-verification";
+        }
+        account.verified();
+        model.addAttribute("numberOfUsers", accountRepository.count());
+        model.addAttribute("nickname", account.getNickname());
+        return "account/email-verification";
     }
 }

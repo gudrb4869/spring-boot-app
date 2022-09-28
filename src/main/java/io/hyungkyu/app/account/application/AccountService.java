@@ -8,6 +8,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +18,7 @@ public class AccountService {
     private final JavaMailSender mailSender;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public void signUp(SignUpForm signUpForm) {
         Account newAccount = saveNewAccount(signUpForm);
         newAccount.generateToken(); // 이메일 인증용 토큰 생성
@@ -31,7 +33,7 @@ public class AccountService {
                 .notificationSetting(Account.NotificationSetting.builder() // 알림설정 중 웹 알림은 true로 설정해줌
                         .studyCreatedByWeb(true)
                         .studyUpdatedByWeb(true)
-                        .studyRegistrationResultByEmailByWeb(true)
+                        .studyRegistrationResultByWeb(true)
                         .build())
                 .build();
         return accountRepository.save(account);
@@ -44,5 +46,9 @@ public class AccountService {
         mailMessage.setText(String.format("/check-email-token?token=%s&email=%s", newAccount.getEmailToken(),
                 newAccount.getEmail())); // 이메일 본문에 추가할 링크를 작성함. 나중에 사용자가 링크를 클릭했을 때 다시 서버로 요청해야하고 이 부분에 대한 구현이 되어있어야 이메일 인증을 마칠 수 있음
         mailSender.send(mailMessage); // 메일을 보냄
+    }
+
+    public Account findAccountByEmail(String email) {
+        return accountRepository.findByEmail(email);
     }
 }
