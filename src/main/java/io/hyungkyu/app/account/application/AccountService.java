@@ -100,4 +100,10 @@ public class AccountService implements UserDetailsService {
         account.updateNotification(notificationForm);
         accountRepository.save(account);
     }
+
+    public void updateNickname(Account account, String nickname) {
+        account.updateNickname(nickname);
+        accountRepository.save(account);
+        login(account); // 중요! 로그인을 다시 호출해서 인증정보를 갱신하여 내비게이션 바에 변경된 닉네임을 표시하도록 해줌.
+    }
 }
