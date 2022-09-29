@@ -32,6 +32,8 @@ public class Account extends AuditingEntity {
 
     private LocalDateTime joinedAt;
 
+    private LocalDateTime emailTokenGeneratedAt;
+
     @Embedded
     private Profile profile;
 
@@ -40,11 +42,16 @@ public class Account extends AuditingEntity {
 
     public void generateToken() {
         this.emailToken = UUID.randomUUID().toString();
+        this.emailTokenGeneratedAt = LocalDateTime.now();
     }
 
     public void verified() {
         this.isValid = true;
         joinedAt = LocalDateTime.now();
+    }
+
+    public boolean enableToSendEmail() {
+        return this.emailTokenGeneratedAt.isBefore(LocalDateTime.now().minusMinutes(5));
     }
 
     @Embeddable

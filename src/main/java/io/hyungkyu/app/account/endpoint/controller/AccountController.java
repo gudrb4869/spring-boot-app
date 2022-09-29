@@ -4,8 +4,8 @@ import io.hyungkyu.app.account.application.AccountService;
 import io.hyungkyu.app.account.domain.entity.Account;
 import io.hyungkyu.app.account.endpoint.controller.validator.SignUpFormValidator;
 import io.hyungkyu.app.account.infra.repository.AccountRepository;
+import io.hyungkyu.app.account.support.CurrentUser;
 import lombok.RequiredArgsConstructor;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -21,9 +21,9 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class AccountController {
 
-    private final SignUpFormValidator signUpFormValidator;
     private final AccountService accountService;
-    private final JavaMailSender mailSender; // 인증 메일을 보내기 위해 JavaMailSender 주입
+    private final SignUpFormValidator signUpFormValidator;
+    private final AccountRepository accountRepository;
 
     /* @InitBinder 어노테이션을 사용해 attribute로 바인딩 할 객체를 지정하고 WebDataBinder를 이용해
     Validator를 추가해주면 해당 객체가 들어왔을 때 검증하는 로직을 직접 추가할 필요가 없음.
@@ -55,8 +55,6 @@ public class AccountController {
         return "redirect:/";
     }
 
-    private final AccountRepository accountRepository;
-
     @GetMapping("/check-email-token")
     public String verifyEmail(String token, String email, Model model) {
         Account account = accountService.findAccountByEmail(email);
@@ -73,5 +71,22 @@ public class AccountController {
         model.addAttribute("numberOfUsers", accountRepository.count());
         model.addAttribute("nickname", account.getNickname());
         return "account/email-verification";
+    }
+
+    @GetMapping("/check-email")
+    public String checkEmail(@CurrentUser Account account, Model model) {
+        model.addAttribute("email", account.getEmail());
+        return "account/check-email";
+    }
+
+    @GetMapping("/resend-email")
+    public String resendEmail(@CurrentUser Account account, Model model) {
+        if (!account.enableToSendEmail()) {
+            model.addAttribute("error", "인증 이메일은 5분에 한 번만 전송할 수 있습니다.");
+            model.addAttribute("email", account.getEmail());
+            return "account/check-email";
+        }
+        accountService.sendVerificationEmail(account);
+        return "redirect:/";
     }
 }
