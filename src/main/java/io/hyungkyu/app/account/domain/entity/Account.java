@@ -1,6 +1,7 @@
 package io.hyungkyu.app.account.domain.entity;
 
 import io.hyungkyu.app.account.domain.support.ListStringConverter;
+import io.hyungkyu.app.settings.controller.Profile;
 import lombok.*;
 import org.hibernate.Hibernate;
 
@@ -63,6 +64,16 @@ public class Account extends AuditingEntity {
         if (notificationSetting == null) {
             notificationSetting = new NotificationSetting();
         }
+    }
+
+    public void updateProfile(io.hyungkyu.app.settings.controller.Profile profile) {
+        if (this.profile == null) {
+            this.profile = new Profile();
+        }
+        this.profile.bio = profile.getBio();
+        this.profile.url = profile.getUrl();
+        this.profile.job = profile.getJob();
+        this.profile.location = profile.getLocation();
     }
 
     @Embeddable

@@ -4,6 +4,7 @@ import io.hyungkyu.app.account.domain.UserAccount;
 import io.hyungkyu.app.account.domain.entity.Account;
 import io.hyungkyu.app.account.endpoint.controller.SignUpForm;
 import io.hyungkyu.app.account.infra.repository.AccountRepository;
+import io.hyungkyu.app.settings.controller.Profile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -82,5 +83,10 @@ public class AccountService implements UserDetailsService {
     public void verify(Account account) {
         account.verified();
         login(account);
+    }
+
+    public void updateProfile(Account account, Profile profile) {
+        account.updateProfile(profile);
+        accountRepository.save(account);
     }
 }
