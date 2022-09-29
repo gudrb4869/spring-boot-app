@@ -6,7 +6,6 @@ import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -56,13 +55,22 @@ public class Account extends AuditingEntity {
         return this.emailTokenGeneratedAt.isBefore(LocalDateTime.now().minusMinutes(5));
     }
 
+    @PostLoad
+    private void init() {
+        if (profile == null) {
+            profile = new Profile();
+        }
+        if (notificationSetting == null) {
+            notificationSetting = new NotificationSetting();
+        }
+    }
+
     @Embeddable
     @NoArgsConstructor(access = AccessLevel.PROTECTED) @AllArgsConstructor(access = AccessLevel.PROTECTED)
     @Builder @Getter @ToString
     public static class Profile {
         private String bio;
-        @Convert(converter = ListStringConverter.class)
-        private List<String> url;
+        private String url;
         private String job;
         private String location;
         private String company;
