@@ -31,6 +31,8 @@ public class SecurityConfig {
                 .anyRequest().authenticated();
         http.formLogin()
                 .loginPage("/login")
+//                .usernameParameter("id")
+//                .passwordParameter("pw")
                 .permitAll();
         http.logout()
                 .logoutSuccessUrl("/");
