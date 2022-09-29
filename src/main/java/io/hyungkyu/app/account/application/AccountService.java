@@ -22,13 +22,13 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AccountService implements UserDetailsService {
 
     private final AccountRepository accountRepository;
     private final JavaMailSender mailSender;
     private final PasswordEncoder passwordEncoder;
 
-    @Transactional
     public Account signUp(SignUpForm signUpForm) {
         Account newAccount = saveNewAccount(signUpForm);
         newAccount.generateToken(); // 이메일 인증용 토큰 생성
@@ -77,5 +77,10 @@ public class AccountService implements UserDetailsService {
             throw new UsernameNotFoundException(username);
         }
         return new UserAccount(account);
+    }
+
+    public void verify(Account account) {
+        account.verified();
+        login(account);
     }
 }
