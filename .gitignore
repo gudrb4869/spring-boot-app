@@ -37,3 +37,4 @@ out/
 .vscode/
 
 *.db
+src/main/resources/static/node_modules
