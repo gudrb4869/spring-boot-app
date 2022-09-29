@@ -4,6 +4,7 @@ import io.hyungkyu.app.account.domain.UserAccount;
 import io.hyungkyu.app.account.domain.entity.Account;
 import io.hyungkyu.app.account.endpoint.controller.SignUpForm;
 import io.hyungkyu.app.account.infra.repository.AccountRepository;
+import io.hyungkyu.app.settings.controller.NotificationForm;
 import io.hyungkyu.app.settings.controller.Profile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
@@ -92,6 +93,11 @@ public class AccountService implements UserDetailsService {
 
     public void updatePassword(Account account, String newPassword) {
         account.updatePassword(passwordEncoder.encode(newPassword));
+        accountRepository.save(account);
+    }
+
+    public void updateNotification(Account account, NotificationForm notificationForm) {
+        account.updateNotification(notificationForm);
         accountRepository.save(account);
     }
 }
