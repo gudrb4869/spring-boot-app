@@ -1,5 +1,6 @@
 package io.hyungkyu.app.study.domain.entity;
 
+import io.hyungkyu.app.account.domain.UserAccount;
 import io.hyungkyu.app.account.domain.entity.Account;
 import io.hyungkyu.app.account.domain.entity.Zone;
 import io.hyungkyu.app.study.endpoint.StudyForm;
@@ -14,6 +15,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@NamedEntityGraph(name = "Study.withAll", attributeNodes = {
+        @NamedAttributeNode("tags"),
+        @NamedAttributeNode("zones"),
+        @NamedAttributeNode("managers"),
+        @NamedAttributeNode("members")
+}) // EntityGraph에 이름을 명시해주는 작업. Study.withAll 이라는 이름을 가지고 tags, zones, managers, members 네 가지 attribute에 대해 Lazy 로딩을 사용하지 않겠다는 뜻.
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class Study {
@@ -71,5 +78,18 @@ public class Study {
 
     public void addManager(Account account) {
         managers.add(account);
+    }
+
+    public boolean isJoinable(UserAccount userAccount) { // 스터디에 가입이 가능한지 확인하는 메서드
+        Account account = userAccount.getAccount();
+        return this.isPublished() && this.isRecruiting() && !this.members.contains(account) && !this.managers.contains(account);
+    }
+
+    public boolean isMember(UserAccount userAccount) {
+        return this.members.contains(userAccount.getAccount());
+    }
+
+    public boolean isManager(UserAccount userAccount) {
+        return this.managers.contains(userAccount.getAccount());
     }
 }
