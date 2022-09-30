@@ -47,9 +47,8 @@ public class Account extends AuditingEntity {
     @ManyToMany @ToString.Exclude
     private Set<Tag> tags = new HashSet<>(); // 컬렉션 타입의 경우 비어있는 객체로 초기화해줌. @Tostring이 있을 경우 순환참조하여 에러가 발생하기 때문에 @Tostring.Exclude를 추가해줌.
 
-    public void setTags(Set<Tag> tags) {
-        this.tags = tags;
-    }
+    @ManyToMany @ToString.Exclude
+    private Set<Zone> zones = new HashSet<>();
 
     public static Account with(String email, String nickname, String password) {
         Account account = new Account();
@@ -64,13 +63,13 @@ public class Account extends AuditingEntity {
         this.emailTokenGeneratedAt = LocalDateTime.now();
     }
 
+    public boolean enableToSendEmail() {
+        return this.emailTokenGeneratedAt.isBefore(LocalDateTime.now().minusMinutes(5));
+    }
+
     public void verified() {
         this.isValid = true;
         joinedAt = LocalDateTime.now();
-    }
-
-    public boolean enableToSendEmail() {
-        return this.emailTokenGeneratedAt.isBefore(LocalDateTime.now().minusMinutes(5));
     }
 
     @PostLoad
@@ -141,11 +140,6 @@ public class Account extends AuditingEntity {
     }
 
     @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -155,5 +149,10 @@ public class Account extends AuditingEntity {
         }
         Account account = (Account) o;
         return id != null && Objects.equals(id, account.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

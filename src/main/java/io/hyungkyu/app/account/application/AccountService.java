@@ -2,6 +2,7 @@ package io.hyungkyu.app.account.application;
 
 import io.hyungkyu.app.account.domain.UserAccount;
 import io.hyungkyu.app.account.domain.entity.Account;
+import io.hyungkyu.app.account.domain.entity.Zone;
 import io.hyungkyu.app.account.endpoint.controller.SignUpForm;
 import io.hyungkyu.app.account.infra.repository.AccountRepository;
 import io.hyungkyu.app.settings.controller.NotificationForm;
@@ -123,5 +124,21 @@ public class AccountService implements UserDetailsService {
         accountRepository.findById(account.getId())
                 .map(Account::getTags)
                 .ifPresent(tags -> tags.remove(tag));
+    }
+
+    public Set<Zone> getZones(Account account) {
+        return accountRepository.findById(account.getId())
+                .orElseThrow()
+                .getZones();
+    }
+
+    public void addZone(Account account, Zone zone) {
+        accountRepository.findById(account.getId())
+                .ifPresent(a -> a.getZones().add(zone));
+    }
+
+    public void removeZone(Account account, Zone zone) {
+        accountRepository.findById(account.getId())
+                .ifPresent(a -> a.getZones().remove(zone));
     }
 }
