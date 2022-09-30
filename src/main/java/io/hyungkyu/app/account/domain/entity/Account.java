@@ -1,8 +1,7 @@
 package io.hyungkyu.app.account.domain.entity;
 
-import io.hyungkyu.app.account.domain.support.ListStringConverter;
 import io.hyungkyu.app.settings.controller.NotificationForm;
-import io.hyungkyu.app.settings.controller.Profile;
+import io.hyungkyu.app.tag.domain.entity.Tag;
 import lombok.*;
 import org.hibernate.Hibernate;
 
