@@ -35,22 +35,14 @@ public class AccountService implements UserDetailsService {
 
     public Account signUp(SignUpForm signUpForm) {
         Account newAccount = saveNewAccount(signUpForm);
-        newAccount.generateToken(); // 이메일 인증용 토큰 생성
         sendVerificationEmail(newAccount);
         return newAccount;
     }
 
     public Account saveNewAccount(SignUpForm signUpForm) {
-        Account account = Account.builder()
-                .email(signUpForm.getEmail())
-                .nickname(signUpForm.getNickname())
-                .password(passwordEncoder.encode(signUpForm.getPassword()))
-                .notificationSetting(Account.NotificationSetting.builder() // 알림설정 중 웹 알림은 true로 설정해줌
-                        .studyCreatedByWeb(true)
-                        .studyUpdatedByWeb(true)
-                        .studyRegistrationResultByWeb(true)
-                        .build())
-                .build();
+        Account account = Account.with(signUpForm.getEmail(), signUpForm.getNickname(), passwordEncoder.encode(signUpForm.getPassword()));
+        // static 생성자를 이용해 객체를 생성함. builder를 사용할 경우 클래스 내에서 설정한 기본 값이 동작하지 않으므로 객체를 생성하는 방식으로 수정하였음.
+        account.generateToken(); // 이메일 인증용 토큰 생성
         return accountRepository.save(account);
     }
 

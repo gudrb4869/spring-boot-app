@@ -7,6 +7,7 @@ import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -35,16 +36,28 @@ public class Account extends AuditingEntity {
 
     private LocalDateTime joinedAt;
 
+    @Embedded
+    private Profile profile = new Profile();
+
+    @Embedded
+    private NotificationSetting notificationSetting = new NotificationSetting();
+
     private LocalDateTime emailTokenGeneratedAt;
 
-    @ManyToMany
-    private Set<Tag> tags;
+    @ManyToMany @ToString.Exclude
+    private Set<Tag> tags = new HashSet<>(); // 컬렉션 타입의 경우 비어있는 객체로 초기화해줌. @Tostring이 있을 경우 순환참조하여 에러가 발생하기 때문에 @Tostring.Exclude를 추가해줌.
 
-    @Embedded
-    private Profile profile;
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
+    }
 
-    @Embedded
-    private NotificationSetting notificationSetting;
+    public static Account with(String email, String nickname, String password) {
+        Account account = new Account();
+        account.email = email;
+        account.nickname = nickname;
+        account.password = password;
+        return account;
+    }
 
     public void generateToken() {
         this.emailToken = UUID.randomUUID().toString();
