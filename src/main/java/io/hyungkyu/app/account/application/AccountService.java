@@ -106,4 +106,13 @@ public class AccountService implements UserDetailsService {
         accountRepository.save(account);
         login(account); // 중요! 로그인을 다시 호출해서 인증정보를 갱신하여 내비게이션 바에 변경된 닉네임을 표시하도록 해줌.
     }
+
+    public void sendLoginLink(Account account) {
+        account.generateToken();
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(account.getEmail());
+        mailMessage.setSubject("[Webluxible] 로그인 링크");
+        mailMessage.setText("/login-by-email?token=" + account.getEmailToken() + "&email=" + account.getEmail());
+        mailSender.send(mailMessage);
+    }
 }
