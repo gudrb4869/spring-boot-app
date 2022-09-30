@@ -2,17 +2,14 @@ package io.hyungkyu.app.account.endpoint.controller;
 
 import io.hyungkyu.app.account.domain.entity.Account;
 import io.hyungkyu.app.account.infra.repository.AccountRepository;
-import org.junit.jupiter.api.Assertions;
+import io.hyungkyu.app.mail.EmailMessage;
+import io.hyungkyu.app.mail.EmailService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +30,7 @@ class AccountControllerTest {
     @Autowired
     AccountRepository accountRepository;
     @MockBean
-    JavaMailSender mailSender;
+    EmailService emailService;
 
     @Test
     @DisplayName("회원 가입 화면 진입 확인")
@@ -76,9 +73,9 @@ class AccountControllerTest {
         Account account = accountRepository.findByEmail("email@email.com");
         assertNotEquals(account.getPassword(), "1234!@#$");
 
-        then(mailSender)
+        then(emailService)
                 .should()
-                .send(any(SimpleMailMessage.class));
+                .sendEmail(any(EmailMessage.class));
     }
 
     @DisplayName("인증 메일 확인: 잘못된 링크")
