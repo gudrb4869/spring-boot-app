@@ -5,6 +5,7 @@ import io.hyungkyu.app.account.domain.entity.Account;
 import io.hyungkyu.app.account.domain.entity.Zone;
 import io.hyungkyu.app.account.endpoint.controller.SignUpForm;
 import io.hyungkyu.app.account.infra.repository.AccountRepository;
+import io.hyungkyu.app.config.AppProperties;
 import io.hyungkyu.app.mail.EmailMessage;
 import io.hyungkyu.app.mail.EmailService;
 import io.hyungkyu.app.settings.controller.NotificationForm;
@@ -20,6 +21,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -33,6 +36,8 @@ public class AccountService implements UserDetailsService {
     private final AccountRepository accountRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final TemplateEngine templateEngine; // HTML 메세지를 생성하기 위해 TemplateEngine을 주입받음.
+    private final AppProperties appProperties; // 호스트 정보를 획득하기 위해 AppProperties를 주입받음.
 
     public Account signUp(SignUpForm signUpForm) {
         Account newAccount = saveNewAccount(signUpForm);
@@ -47,12 +52,19 @@ public class AccountService implements UserDetailsService {
         return accountRepository.save(account);
     }
 
-    public void sendVerificationEmail(Account newAccount) {
+    public void sendVerificationEmail(Account newAccount) { // 가입시 이메일 전송하는 부분을 수정함.
+        Context context = new Context();
+        context.setVariable("link", String.format("/check-email-token?token=%s&email=%s", newAccount.getEmailToken(),
+                newAccount.getEmail()));
+        context.setVariable("nickname", newAccount.getNickname());
+        context.setVariable("linkName", "이메일 인증하기");
+        context.setVariable("message", "Webluxible 가입 인증을 위해 링크를 클릭하세요.");
+        context.setVariable("host", appProperties.getHost());
+        String message = templateEngine.process("mail/simple-link", context);
         emailService.sendEmail(EmailMessage.builder()
                 .to(newAccount.getEmail())
                 .subject("Webluxible 회원 가입 인증")
-                .message(String.format("/check-email-token?token=%s&email=%s", newAccount.getEmailToken(),
-                        newAccount.getEmail()))
+                .message(message)
                 .build());
     }
 
@@ -102,12 +114,19 @@ public class AccountService implements UserDetailsService {
         login(account); // 중요! 로그인을 다시 호출해서 인증정보를 갱신하여 내비게이션 바에 변경된 닉네임을 표시하도록 해줌.
     }
 
-    public void sendLoginLink(Account account) {
+    public void sendLoginLink(Account account) { // 이메일로 로그인하는 부분을 수정함
+        Context context = new Context();
+        context.setVariable("link", String.format("/login-by-email?token=" + account.getEmailToken() + "&email=" + account.getEmail()));
+        context.setVariable("nickname", account.getNickname());
+        context.setVariable("linkName", "Webluxible 로그인하기");
+        context.setVariable("message", "로그인 하려면 아래 링크를 클릭하세요.");
+        context.setVariable("host", appProperties.getHost());
+        String message = templateEngine.process("mail/simple-link", context);
         account.generateToken();
         emailService.sendEmail(EmailMessage.builder()
                 .to(account.getEmail())
                 .subject("[Webluxible] 로그인 링크")
-                .message("/login-by-email?token=" + account.getEmailToken() + "&email=" + account.getEmail())
+                .message(message)
                 .build());
     }
 
