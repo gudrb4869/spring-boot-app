@@ -39,3 +39,4 @@ out/
 *.db
 src/main/resources/static/node_modules
 spy.log
+/src/main/resources/application-local-db.yml

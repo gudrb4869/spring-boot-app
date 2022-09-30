@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import javax.mail.internet.MimeMessage;
 import java.io.InputStream;
 
-@Profile({"local", "local-db"}) // active profile이 local일 때만 빈에 등록되도록 함 (#34 local-db 추가)
+@Profile("local") // active profile이 local일 때만 빈에 등록되도록 함
 @Component
 @Slf4j
 public class ConsoleMailSender implements JavaMailSender {
