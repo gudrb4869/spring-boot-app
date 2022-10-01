@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -109,6 +108,25 @@ class StudyControllerTest {
         mockMvc.perform(get("/study/" + studyPath))
                 .andExpect(status().isOk())
                 .andExpect(view().name("study/view"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("study"));
+    }
+
+    @Test
+    @DisplayName("스터디 멤버 뷰")
+    @WithAccount("gudrb")
+    void studyMemberView() throws Exception {
+        Account account = accountRepository.findByNickname("gudrb");
+        String studyPath = "study-path";
+        studyService.createNewStudy(StudyForm.builder()
+                .path(studyPath)
+                .title("study-title")
+                .shortDescription("short-description")
+                .fullDescription("full-description")
+                .build(), account);
+        mockMvc.perform(get("/study/" + studyPath + "/members"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("study/members"))
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("study"));
     }

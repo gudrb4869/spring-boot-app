@@ -59,10 +59,10 @@
     </button>
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
+        <ul class="navbar-nav me-auto">
             <li class="nav-item">
                 <form th:action="@{/search/study}" class="form-inline" method="get">
-                    <input class="form-control mr-sm-2" name="keyword" type="search" placeholder="스터디 찾기"
+                    <input class="form-control me-sm-2" name="keyword" type="search" placeholder="스터디 찾기"
                            aria-label="Search"/>
                 </form>
             </li>
@@ -160,7 +160,7 @@
                 <span class="h2" th:text="${study.title}">스터디 이름</span>
             </a>
         </div>
-        <div class="col-4 text-right justify-content-end">
+        <div class="col-4 text-end justify-content-end">
             <!--스터디를 공개하지 않았을 경우-->
             <span th:if="${!study.published}" class="d-inline-block" tabindex="0" data-bs-toggle="tooltip"
                   data-placement="bottom" title="공개 준비중입니다.">
@@ -222,12 +222,12 @@
         <div class="col-10">
             <p>
                 <span th:each="tag: ${study.tags}"
-                      class="font-weight-light text-monospace badge badge-pill badge-info mr-3">
+                      class="font-weight-light text-monospace badge badge-pill badge-info me-3">
                     <a th:href="@{'/search/tag/' + ${tag.title}}" class="text-decoration-none text-white">
                         <i class="fa fa-tag"></i> <span th:text="${tag.title}">Tag</span>
                     </a>
                 </span>
-                <span th:each="zone: ${study.zones}" class="font-weight-light text-monospace badge badge-primary mr-3">
+                <span th:each="zone: ${study.zones}" class="font-weight-light text-monospace badge badge-primary me-3">
                     <a th:href="@{'/search/zone/' + ${zone.id}}" class="text-decoration-none text-white">
                         <i class="fa fa-globe"></i> <span th:text="${zone.localNameOfCity}">City</span>
                     </a>
@@ -254,6 +254,24 @@
             <i class="fa fa-cog"></i> 설정
         </a>
     </nav>
+</div>
+
+<div th:fragment="member-list (members, isManager)" class="row px-3 justify-content-center">
+    <ul class="list-unstyled col-10">
+        <li class="d-flex mt-3" th:each="member: ${members}">
+            <div class="flex-shrink-0">
+                <svg th:if="${#strings.isEmpty(member?.profile?.image)}" th:data-jdenticon-value="${member.nickname}" width="64" height="64" class="rounded border bg-light me-3"></svg>
+                <img th:if="${!#strings.isEmpty(member?.profile?.image)}" th:src="${member?.profile?.image}" width="64" height="64" class="rounded border me-3"/>
+            </div>
+            <div class="flex-grow-1 ms-3">
+                <h5 class="mt-0 mb-1">
+                    <span th:text="${member.nickname}"></span>
+                    <span th:if="${isManager}" class="badge bg-primary">관리자</span>
+                </h5>
+                <span th:text="${member.profile.bio}"></span>
+            </div>
+        </li>
+    </ul>
 </div>
 
 <!--툴팁 스크립트-->
