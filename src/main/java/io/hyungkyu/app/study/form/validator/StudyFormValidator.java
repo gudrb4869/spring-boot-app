@@ -1,6 +1,6 @@
 package io.hyungkyu.app.study.form.validator;
 
-import io.hyungkyu.app.study.endpoint.StudyForm;
+import io.hyungkyu.app.study.form.StudyForm;
 import io.hyungkyu.app.study.infra.repository.StudyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

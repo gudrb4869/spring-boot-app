@@ -4,6 +4,7 @@ import io.hyungkyu.app.account.domain.entity.Account;
 import io.hyungkyu.app.account.support.CurrentUser;
 import io.hyungkyu.app.study.application.StudyService;
 import io.hyungkyu.app.study.domain.entity.Study;
+import io.hyungkyu.app.study.form.StudyForm;
 import io.hyungkyu.app.study.form.validator.StudyFormValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;

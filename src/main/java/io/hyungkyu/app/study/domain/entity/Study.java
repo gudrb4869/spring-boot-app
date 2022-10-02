@@ -3,12 +3,13 @@ package io.hyungkyu.app.study.domain.entity;
 import io.hyungkyu.app.account.domain.UserAccount;
 import io.hyungkyu.app.account.domain.entity.Account;
 import io.hyungkyu.app.account.domain.entity.Zone;
-import io.hyungkyu.app.study.endpoint.StudyForm;
+import io.hyungkyu.app.study.form.StudyForm;
 import io.hyungkyu.app.study.form.StudyDescriptionForm;
 import io.hyungkyu.app.tag.domain.entity.Tag;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -66,6 +67,7 @@ public class Study {
 
     private boolean closed;
 
+    @Accessors(fluent = true) // isUseBanner 메소드가 생성되는 것을 방지하기 위해 @Accessors 어노테이션을 추가하였음.
     private boolean useBanner;
 
     public static Study from(StudyForm studyForm) {
@@ -97,5 +99,13 @@ public class Study {
     public void updateDescription(StudyDescriptionForm studyDescriptionForm) {
         this.shortDescription = studyDescriptionForm.getShortDescription();
         this.fullDescription = studyDescriptionForm.getFullDescription();
+    }
+
+    public void updateImage(String image) {
+        this.image = image;
+    }
+
+    public void setBanner(boolean useBanner) {
+        this.useBanner = useBanner;
     }
 }

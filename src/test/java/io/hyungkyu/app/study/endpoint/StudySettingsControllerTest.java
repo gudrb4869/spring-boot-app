@@ -5,16 +5,16 @@ import io.hyungkyu.app.account.domain.entity.Account;
 import io.hyungkyu.app.account.infra.repository.AccountRepository;
 import io.hyungkyu.app.study.application.StudyService;
 import io.hyungkyu.app.study.domain.entity.Study;
+import io.hyungkyu.app.study.form.StudyForm;
 import io.hyungkyu.app.study.infra.repository.StudyRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -76,5 +76,51 @@ class StudySettingsControllerTest {
         Study study = studyService.getStudy(account, studyPath);
         assertEquals(shortDescriptionToBeUpdated, study.getShortDescription());
         assertEquals(fullDescriptionToBeUpdated, study.getFullDescription());
+    }
+
+    @Test
+    @DisplayName("스터디 세팅 폼 조회(배너)")
+    @WithAccount("gudrb")
+    void studySettingFormBanner() throws Exception {
+        mockMvc.perform(get("/study/" + studyPath + "/settings/banner"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("study/settings/banner"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("study"));
+    }
+
+    @Test
+    @DisplayName("스터디 배너 업데이트")
+    @WithAccount("gudrb")
+    void updateStudyBanner() throws Exception {
+        mockMvc.perform(post("/study/" + studyPath + "/settings/banner")
+                        .param("image", "image-test")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/study/" + studyPath + "/settings/banner"));
+    }
+
+    @Test
+    @DisplayName("스터디 배너 사용")
+    @WithAccount("gudrb")
+    void enableStudyBanner() throws Exception {
+        mockMvc.perform(post("/study/" + studyPath + "/settings/banner/enable")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/study/" + studyPath + "/settings/banner"));
+        Study study = studyRepository.findByPath(studyPath);
+        assertTrue(study.useBanner());
+    }
+
+    @Test
+    @DisplayName("스터디 배너 미사용")
+    @WithAccount("gudrb")
+    void disableStudyBanner() throws Exception {
+        mockMvc.perform(post("/study/" + studyPath + "/settings/banner/disable")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/study/" + studyPath + "/settings/banner"));
+        Study study = studyRepository.findByPath(studyPath);
+        assertFalse(study.useBanner());
     }
 }

@@ -2,7 +2,7 @@ package io.hyungkyu.app.study.application;
 
 import io.hyungkyu.app.account.domain.entity.Account;
 import io.hyungkyu.app.study.domain.entity.Study;
-import io.hyungkyu.app.study.endpoint.StudyForm;
+import io.hyungkyu.app.study.form.StudyForm;
 import io.hyungkyu.app.study.form.StudyDescriptionForm;
 import io.hyungkyu.app.study.infra.repository.StudyRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,5 +42,17 @@ public class StudyService {
 
     public void updateStudyDescription(Study study, StudyDescriptionForm studyDescriptionForm) {
         study.updateDescription(studyDescriptionForm);
+    }
+
+    public void updateStudyImage(Study study, String image) {
+        study.updateImage(image);
+    }
+
+    public void enableStudyBanner(Study study) {
+        study.setBanner(true);
+    }
+
+    public void disableStudyBanner(Study study) {
+        study.setBanner(false);
     }
 }

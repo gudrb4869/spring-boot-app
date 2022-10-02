@@ -1,4 +1,4 @@
-package io.hyungkyu.app.study.endpoint;
+package io.hyungkyu.app.study.form;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

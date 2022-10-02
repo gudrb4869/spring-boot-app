@@ -4,6 +4,7 @@ import io.hyungkyu.app.WithAccount;
 import io.hyungkyu.app.account.domain.entity.Account;
 import io.hyungkyu.app.account.infra.repository.AccountRepository;
 import io.hyungkyu.app.study.application.StudyService;
+import io.hyungkyu.app.study.form.StudyForm;
 import io.hyungkyu.app.study.infra.repository.StudyRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
