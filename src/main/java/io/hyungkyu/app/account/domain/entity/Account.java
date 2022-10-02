@@ -1,6 +1,7 @@
 package io.hyungkyu.app.account.domain.entity;
 
 import io.hyungkyu.app.settings.controller.NotificationForm;
+import io.hyungkyu.app.study.domain.entity.Study;
 import io.hyungkyu.app.tag.domain.entity.Tag;
 import lombok.*;
 import org.hibernate.Hibernate;
@@ -112,6 +113,10 @@ public class Account extends AuditingEntity {
 
     public boolean isValid(String token) {
         return this.emailToken.equals(token);
+    }
+
+    public boolean isManagerOf(Study study) {
+        return study.getManagers().contains(this);
     }
 
     @Embeddable

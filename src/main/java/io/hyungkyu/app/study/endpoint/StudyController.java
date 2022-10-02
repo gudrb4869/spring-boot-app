@@ -5,7 +5,6 @@ import io.hyungkyu.app.account.support.CurrentUser;
 import io.hyungkyu.app.study.application.StudyService;
 import io.hyungkyu.app.study.domain.entity.Study;
 import io.hyungkyu.app.study.form.validator.StudyFormValidator;
-import io.hyungkyu.app.study.infra.repository.StudyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,7 +24,6 @@ import java.nio.charset.StandardCharsets;
 public class StudyController {
 
     private final StudyService studyService;
-    private final StudyRepository studyRepository;
     private final StudyFormValidator studyFormValidator;
 
     @InitBinder("studyForm")
@@ -52,14 +50,14 @@ public class StudyController {
     @GetMapping("/study/{path}")
     public String viewStudy(@CurrentUser Account account, @PathVariable String path, Model model) {
         model.addAttribute(account);
-        model.addAttribute(studyRepository.findByPath(path));
+        model.addAttribute(studyService.getStudy(path));
         return "study/view";
     }
 
     @GetMapping("/study/{path}/members")
     public String viewStudyMembers(@CurrentUser Account account, @PathVariable String path, Model model) {
         model.addAttribute(account);
-        model.addAttribute(studyRepository.findByPath(path));
+        model.addAttribute(studyService.getStudy(path));
         return "study/members";
     }
 }
