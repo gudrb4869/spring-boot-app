@@ -229,7 +229,7 @@
                   th:if="${study.published && !study.closed && study.isManager(#authentication.principal)}">
                 <!--모임 만들기 링크-->
                 <a class="btn btn-outline-primary" th:href="@{'/study/' + ${study.path} + '/new-event'}">
-                    <i class>a fa-plus"></i> 모임 만들기
+                    <i class="fa fa-plus"></i> 모임 만들기
                 </a>
             </span>
         </div>

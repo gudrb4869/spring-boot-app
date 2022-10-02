@@ -14,9 +14,13 @@ import javax.validation.constraints.Pattern;
 @AllArgsConstructor
 @Builder
 public class StudyForm {
+
+    // 스터디 경로의 유효성을 확인하기 위한 부분에서 사용했던 정규표현식 패턴을 상수로 변경해 외부에서 접근할 수 있게 하였음.
+    public static final String VALID_PATH_PATTERN = "^[ㄱ-ㅎ가-힣a-z0-9_-]{2,20}$";
+
     @NotBlank
     @Length(min = 2, max = 20)
-    @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-z0-9_-]{2,20}$")
+    @Pattern(regexp = VALID_PATH_PATTERN)
     private String path;
 
     @NotBlank

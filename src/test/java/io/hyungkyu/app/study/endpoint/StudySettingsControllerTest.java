@@ -233,4 +233,112 @@ class StudySettingsControllerTest {
                 .andExpect(status().isOk());
         assertFalse(study.getZones().contains(testZone));
     }
+
+    @Test
+    @DisplayName("스터디 세팅 폼 조회(스터디)")
+    @WithAccount("gudrb")
+    void studySettingFormStudy() throws Exception {
+        mockMvc.perform(get("/study/" + studyPath + "/settings/study"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("study/settings/study"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("study"));
+    }
+
+    @Test
+    @DisplayName("스터디 공개")
+    @WithAccount("gudrb")
+    void publishStudy() throws Exception {
+        mockMvc.perform(post("/study/" + studyPath + "/settings/study/publish")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/study/" + studyPath + "/settings/study"))
+                .andExpect(flash().attributeExists("message"));
+        Study study = studyRepository.findByPath(studyPath);
+        assertTrue(study.isPublished());
+    }
+
+    @Test
+    @DisplayName("스터디 종료")
+    @WithAccount("gudrb")
+    void closeStudy() throws Exception {
+        Study study = studyRepository.findByPath(studyPath);
+        studyService.publish(study);
+        mockMvc.perform(post("/study/" + studyPath + "/settings/study/close")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/study/" + studyPath + "/settings/study"))
+                .andExpect(flash().attributeExists("message"));
+        assertTrue(study.isClosed());
+    }
+
+    @Test
+    @DisplayName("스터디 팀원 모집 시작")
+    @WithAccount("gudrb")
+    void startRecruit() throws Exception {
+        Study study = studyRepository.findByPath(studyPath);
+        studyService.publish(study);
+        mockMvc.perform(post("/study/" + studyPath + "/settings/recruit/start")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/study/" + studyPath + "/settings/study"))
+                .andExpect(flash().attributeExists("message"));
+        assertTrue(study.isRecruiting());
+    }
+
+    @Test
+    @DisplayName("스터디 팀원 모집 중지: 1시간 이내 시도 -> 실패")
+    @WithAccount("gudrb")
+    void stopRecruit() throws Exception {
+        Study study = studyRepository.findByPath(studyPath);
+        studyService.publish(study);
+        studyService.startRecruit(study);
+        mockMvc.perform(post("/study/" + studyPath + "/settings/recruit/stop")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/study/" + studyPath + "/settings/study"))
+                .andExpect(flash().attributeExists("message"));
+        assertTrue(study.isRecruiting());
+    }
+
+    @Test
+    @DisplayName("스터디 경로 변경")
+    @WithAccount("gudrb")
+    void updateStudyPath() throws Exception {
+        String newPath = "new-path";
+        mockMvc.perform(post("/study/" + studyPath + "/settings/study/path")
+                        .param("newPath", newPath)
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/study/" + newPath + "/settings/study"))
+                .andExpect(flash().attributeExists("message"));
+        Study study = studyRepository.findByPath(newPath);
+        assertEquals(newPath, study.getPath());
+    }
+
+    @Test
+    @DisplayName("스터디 이름 변경")
+    @WithAccount("gudrb")
+    void updateStudyTitle() throws Exception {
+        String newTitle = "newTitle";
+        mockMvc.perform(post("/study/" + studyPath + "/settings/study/title")
+                        .param("newTitle", newTitle)
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/study/" + studyPath + "/settings/study"))
+                .andExpect(flash().attributeExists("message"));
+        Study study = studyRepository.findByPath(studyPath);
+        assertEquals(newTitle, study.getTitle());
+    }
+
+    @Test
+    @DisplayName("스터디 삭제")
+    @WithAccount("gudrb")
+    void removeStudy() throws Exception {
+        mockMvc.perform(post("/study/" + studyPath + "/settings/study/remove")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
+        assertNull(studyRepository.findByPath(studyPath));
+    }
 }
