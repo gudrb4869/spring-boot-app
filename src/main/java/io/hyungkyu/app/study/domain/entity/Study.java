@@ -23,6 +23,14 @@ import java.util.Set;
         @NamedAttributeNode("managers"),
         @NamedAttributeNode("members")
 }) // EntityGraph에 이름을 명시해주는 작업. Study.withAll 이라는 이름을 가지고 tags, zones, managers, members 네 가지 attribute에 대해 Lazy 로딩을 사용하지 않겠다는 뜻.
+@NamedEntityGraph(name = "Study.withTagsAndManagers", attributeNodes = {
+        @NamedAttributeNode("tags"),
+        @NamedAttributeNode("managers")
+})
+@NamedEntityGraph(name = "Study.withZonesAndManagers", attributeNodes = {
+        @NamedAttributeNode("zones"),
+        @NamedAttributeNode("managers")
+})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class Study {
@@ -107,5 +115,21 @@ public class Study {
 
     public void setBanner(boolean useBanner) {
         this.useBanner = useBanner;
+    }
+
+    public void addTag(Tag tag) {
+        this.tags.add(tag);
+    }
+
+    public void removeTag(Tag tag) {
+        this.tags.remove(tag);
+    }
+
+    public void addZone(Zone zone) {
+        this.zones.add(zone);
+    }
+
+    public void removeZone(Zone zone) {
+        this.zones.remove(zone);
     }
 }
