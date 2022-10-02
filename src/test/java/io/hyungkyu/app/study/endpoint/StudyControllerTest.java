@@ -4,6 +4,7 @@ import io.hyungkyu.app.WithAccount;
 import io.hyungkyu.app.account.domain.entity.Account;
 import io.hyungkyu.app.account.infra.repository.AccountRepository;
 import io.hyungkyu.app.study.application.StudyService;
+import io.hyungkyu.app.study.domain.entity.Study;
 import io.hyungkyu.app.study.form.StudyForm;
 import io.hyungkyu.app.study.infra.repository.StudyRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -130,5 +131,44 @@ class StudyControllerTest {
                 .andExpect(view().name("study/members"))
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("study"));
+    }
+
+    @Test
+    @DisplayName("스터디 가입")
+    @WithAccount(value = {"gudrb", "test"})
+    void joinStudy() throws Exception {
+        Account manager = accountRepository.findByNickname("gudrb");
+        String studyPath = "study-path";
+        Study study = studyService.createNewStudy(StudyForm.builder()
+                .path(studyPath)
+                .title("study-title")
+                .shortDescription("short-description")
+                .fullDescription("full-description")
+                .build(), manager);
+        mockMvc.perform(get("/study/" + studyPath + "/join"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/study/" + studyPath + "/members"));
+        Account member = accountRepository.findByNickname("test");
+        assertTrue(study.getMembers().contains(member));
+    }
+
+    @Test
+    @DisplayName("스터디 탈퇴")
+    @WithAccount(value = {"gudrb", "test"})
+    void leaveStudy() throws Exception {
+        Account manager = accountRepository.findByNickname("gudrb");
+        String studyPath = "study-path";
+        Study study = studyService.createNewStudy(StudyForm.builder()
+                .path(studyPath)
+                .title("study-title")
+                .shortDescription("short-description")
+                .fullDescription("full-description")
+                .build(), manager);
+        Account member = accountRepository.findByNickname("test");
+        studyService.addMember(study, member);
+        mockMvc.perform(get("/study/" + studyPath + "/leave"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/study/" + studyPath + "/members"));
+        assertFalse(study.getMembers().contains(member));
     }
 }
