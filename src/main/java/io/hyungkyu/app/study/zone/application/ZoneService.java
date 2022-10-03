@@ -1,7 +1,7 @@
-package io.hyungkyu.app.zone.application;
+package io.hyungkyu.app.study.zone.application;
 
 import io.hyungkyu.app.account.domain.entity.Zone;
-import io.hyungkyu.app.zone.infra.repository.ZoneRepository;
+import io.hyungkyu.app.study.zone.infra.repository.ZoneRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;

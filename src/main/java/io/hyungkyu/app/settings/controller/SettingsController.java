@@ -8,7 +8,7 @@ import io.hyungkyu.app.account.domain.entity.Zone;
 import io.hyungkyu.app.account.support.CurrentUser;
 import io.hyungkyu.app.tag.domain.entity.Tag;
 import io.hyungkyu.app.tag.infra.repository.TagRepository;
-import io.hyungkyu.app.zone.infra.repository.ZoneRepository;
+import io.hyungkyu.app.study.zone.infra.repository.ZoneRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;

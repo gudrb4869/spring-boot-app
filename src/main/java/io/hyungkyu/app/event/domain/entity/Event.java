@@ -9,6 +9,8 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @NamedEntityGraph(
         name = "Event.withEnrollments",
@@ -49,7 +51,7 @@ public class Event {
 
     private Integer limitOfEnrollments;
 
-    @OneToMany(mappedBy = "event")
+    @OneToMany(mappedBy = "event") @ToString.Exclude
     private List<Enrollment> enrollments;
 
     @Enumerated(EnumType.STRING)
@@ -123,5 +125,56 @@ public class Event {
         this.endDateTime = eventForm.getEndDateTime();
         this.limitOfEnrollments = eventForm.getLimitOfEnrollments();
         this.endEnrollmentDateTime = eventForm.getEndEnrollmentDateTime();
+    }
+
+    public boolean isAbleToAcceptWaitingEnrollment() {
+        return this.eventType == EventType.FCFS && this.limitOfEnrollments > this.getNumberOfAcceptedEnrollments();
+    }
+
+    public void addEnrollment(Enrollment enrollment) {
+        this.enrollments.add(enrollment);
+        enrollment.attach(this);
+    }
+
+    public void removeEnrollment(Enrollment enrollment) {
+        this.enrollments.remove(enrollment);
+        enrollment.detachEvent();
+    }
+
+    public void acceptNextIfAvailable() {
+        if (this.isAbleToAcceptWaitingEnrollment()) {
+            this.firstWaitingEnrollment().ifPresent(Enrollment::accept);
+        }
+    }
+
+    private Optional<Enrollment> firstWaitingEnrollment() {
+        return this.enrollments.stream()
+                .filter(e -> !e.isAccepted())
+                .findFirst();
+    }
+
+    public void acceptWaitingList() {
+        if (this.isAbleToAcceptWaitingEnrollment()) {
+            List<Enrollment> waitingList = this.enrollments.stream()
+                    .filter(e -> !e.isAccepted())
+                    .collect(Collectors.toList());
+            int numberToAccept = (int) Math.min(limitOfEnrollments - getNumberOfAcceptedEnrollments(), waitingList.size());
+            waitingList.subList(0, numberToAccept).forEach(Enrollment::accept);
+        }
+    }
+
+    public boolean isAcceptable(Enrollment enrollment) {
+        return this.eventType == EventType.CONFIRMATIVE
+                && this.enrollments.contains(enrollment)
+                && this.limitOfEnrollments > this.getNumberOfAcceptedEnrollments()
+                && !enrollment.isAttended()
+                && !enrollment.isAccepted();
+    }
+
+    public boolean isRejectable(Enrollment enrollment) {
+        return this.eventType == EventType.CONFIRMATIVE
+                && this.enrollments.contains(enrollment)
+                && !enrollment.isAttended()
+                && enrollment.isAccepted();
     }
 }

@@ -13,7 +13,7 @@ import io.hyungkyu.app.study.form.StudyForm;
 import io.hyungkyu.app.study.infra.repository.StudyRepository;
 import io.hyungkyu.app.tag.domain.entity.Tag;
 import io.hyungkyu.app.tag.infra.repository.TagRepository;
-import io.hyungkyu.app.zone.infra.repository.ZoneRepository;
+import io.hyungkyu.app.study.zone.infra.repository.ZoneRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

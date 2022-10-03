@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Transactional(readOnly = true)
 public interface StudyRepository extends JpaRepository<Study, Long> {
     boolean existsByPath(String path);
@@ -24,6 +26,8 @@ public interface StudyRepository extends JpaRepository<Study, Long> {
 
     @EntityGraph(value = "Study.withMembers", type = EntityGraph.EntityGraphType.FETCH)
     Study findStudyWithMembersByPath(String path);
+
+    Optional<Study> findStudyOnlyByPath(String path);
 
     /* find, ByColumnName 과 같은 정해진 문구는 SQL문을 생성할 때 영향을 주지만 그 사이에 있는 값은 메소드를 구분하는
     기능만 가지고 있을 뿐 쿼리에는 영향을 주지 않음.

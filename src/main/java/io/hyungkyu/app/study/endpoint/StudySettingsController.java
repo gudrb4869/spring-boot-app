@@ -14,7 +14,7 @@ import io.hyungkyu.app.study.infra.repository.StudyRepository;
 import io.hyungkyu.app.tag.application.TagService;
 import io.hyungkyu.app.tag.domain.entity.Tag;
 import io.hyungkyu.app.tag.infra.repository.TagRepository;
-import io.hyungkyu.app.zone.infra.repository.ZoneRepository;
+import io.hyungkyu.app.study.zone.infra.repository.ZoneRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;

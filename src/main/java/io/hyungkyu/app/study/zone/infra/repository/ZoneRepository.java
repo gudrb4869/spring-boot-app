@@ -1,4 +1,4 @@
-package io.hyungkyu.app.zone.infra.repository;
+package io.hyungkyu.app.study.zone.infra.repository;
 
 import io.hyungkyu.app.account.domain.entity.Zone;
 import org.springframework.data.jpa.repository.JpaRepository;

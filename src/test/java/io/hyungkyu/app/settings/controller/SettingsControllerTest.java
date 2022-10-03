@@ -8,7 +8,7 @@ import io.hyungkyu.app.account.domain.entity.Zone;
 import io.hyungkyu.app.account.infra.repository.AccountRepository;
 import io.hyungkyu.app.tag.domain.entity.Tag;
 import io.hyungkyu.app.tag.infra.repository.TagRepository;
-import io.hyungkyu.app.zone.infra.repository.ZoneRepository;
+import io.hyungkyu.app.study.zone.infra.repository.ZoneRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

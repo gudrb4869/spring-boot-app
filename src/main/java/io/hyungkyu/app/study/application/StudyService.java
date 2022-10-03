@@ -48,6 +48,11 @@ public class StudyService {
         return getStudy(account, path, studyRepository.findStudyWithManagersByPath(path));
     }
 
+    public Study getStudyToEnroll(String path) {
+        return studyRepository.findStudyOnlyByPath(path)
+                .orElseThrow(() -> new IllegalArgumentException(path + "에 해당하는 스터디가 존재하지 않습니다."));
+    }
+
     private Study getStudy(Account account, String path, Study studyByPath) {
         checkStudyExists(path, studyByPath);
         checkAccountIsManager(account, studyByPath);
