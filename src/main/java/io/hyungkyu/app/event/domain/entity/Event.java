@@ -53,6 +53,7 @@ public class Event {
     private Integer limitOfEnrollments;
 
     @OneToMany(mappedBy = "event") @ToString.Exclude
+    @OrderBy("enrolledAt")
     private List<Enrollment> enrollments = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
@@ -71,14 +72,6 @@ public class Event {
         event.study = study;
         event.createdDateTime = LocalDateTime.now();
         return event;
-    }
-
-    public boolean isEnrollableFor(UserAccount userAccount) {
-        return isNotClosed() && !isAlreadyEnrolled(userAccount);
-    }
-
-    public boolean isDisenrollableFor(UserAccount userAccount) {
-        return isNotClosed() && isAlreadyEnrolled(userAccount);
     }
 
     private boolean isNotClosed() {
@@ -161,6 +154,26 @@ public class Event {
                     .collect(Collectors.toList());
             int numberToAccept = (int) Math.min(limitOfEnrollments - getNumberOfAcceptedEnrollments(), waitingList.size());
             waitingList.subList(0, numberToAccept).forEach(Enrollment::accept);
+        }
+    }
+
+    public boolean isEnrollableFor(UserAccount userAccount) {
+        return isNotClosed() && !isAttended(userAccount) && !isAlreadyEnrolled(userAccount);
+    }
+
+    public boolean isDisenrollableFor(UserAccount userAccount) {
+        return isNotClosed() && !isAttended(userAccount) && isAlreadyEnrolled(userAccount);
+    }
+
+    public void accept(Enrollment enrollment) {
+        if (this.eventType == EventType.CONFIRMATIVE && this.limitOfEnrollments > this.getNumberOfAcceptedEnrollments()) {
+            enrollment.accept();
+        }
+    }
+
+    public void reject(Enrollment enrollment) {
+        if (this.eventType == EventType.CONFIRMATIVE) {
+            enrollment.reject();
         }
     }
 

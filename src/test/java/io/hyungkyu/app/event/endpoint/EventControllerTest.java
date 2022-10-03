@@ -5,6 +5,7 @@ import io.hyungkyu.app.WithAccount;
 import io.hyungkyu.app.account.domain.entity.Account;
 import io.hyungkyu.app.account.infra.repository.AccountRepository;
 import io.hyungkyu.app.event.application.EventService;
+import io.hyungkyu.app.event.domain.entity.Enrollment;
 import io.hyungkyu.app.event.domain.entity.Event;
 import io.hyungkyu.app.event.domain.entity.EventType;
 import io.hyungkyu.app.event.endpoint.form.EventForm;
@@ -134,7 +135,7 @@ class EventControllerTest {
     @DisplayName("모임 뷰")
     @WithAccount("gudrb")
     void eventView() throws Exception {
-        Event event = stubbingEvent();
+        Event event = stubbingEvent(EventType.FCFS);
         mockMvc.perform(get("/study/" + studyPath + "/events/" + event.getId()))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeExists("account"))
@@ -146,7 +147,7 @@ class EventControllerTest {
     @DisplayName("모임 리스트 뷰")
     @WithAccount("gudrb")
     void eventListView() throws Exception {
-        Event event = stubbingEvent();
+        Event event = stubbingEvent(EventType.FCFS);
         mockMvc.perform(get("/study/" + studyPath + "/events"))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeExists("account"))
@@ -160,7 +161,7 @@ class EventControllerTest {
     @DisplayName("모임 수정 뷰")
     @WithAccount("gudrb")
     void eventEditView() throws Exception {
-        Event event = stubbingEvent();
+        Event event = stubbingEvent(EventType.FCFS);
         mockMvc.perform(get("/study/" + studyPath + "/events/" + event.getId() + "/edit"))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeExists("account"))
@@ -174,7 +175,7 @@ class EventControllerTest {
     @DisplayName("모임 수정")
     @WithAccount("gudrb")
     void editEvent() throws Exception {
-        Event event = stubbingEvent();
+        Event event = stubbingEvent(EventType.FCFS);
         LocalDateTime now = LocalDateTime.now();
         mockMvc.perform(post("/study/" + studyPath + "/events/" + event.getId() + "/edit")
                         .param("description", "description")
@@ -193,7 +194,7 @@ class EventControllerTest {
     @DisplayName("모임 삭제")
     @WithAccount("gudrb")
     void deleteEvent() throws Exception {
-        Event event = stubbingEvent();
+        Event event = stubbingEvent(EventType.FCFS);
         mockMvc.perform(delete("/study/" + studyPath + "/events/" + event.getId())
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
@@ -206,7 +207,7 @@ class EventControllerTest {
     @DisplayName("선착순 모임에 참가 신청 - 자동 수락")
     @WithAccount("gudrb")
     void enroll() throws Exception {
-        Event event = stubbingEvent();
+        Event event = stubbingEvent(EventType.FCFS);
         mockMvc.perform(post("/study/" + study.getPath() + "/events/" + event.getId() + "/enroll")
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
@@ -219,7 +220,7 @@ class EventControllerTest {
     @DisplayName("선착순 모임에 참가 신청 - 대기중")
     @WithAccount("gudrb")
     void enroll_with_waiting() throws Exception {
-        Event event = stubbingEvent();
+        Event event = stubbingEvent(EventType.FCFS);
         Account tester1 = createAccount("tester1");
         Account tester2 = createAccount("tester2");
         eventService.enroll(event, tester1);
@@ -239,7 +240,7 @@ class EventControllerTest {
         Account account = accountRepository.findByNickname("gudrb");
         Account tester1 = createAccount("tester1");
         Account tester2 = createAccount("tester2");
-        Event event = stubbingEvent();
+        Event event = stubbingEvent(EventType.FCFS);
         eventService.enroll(event, tester1);
         eventService.enroll(event, account);
         eventService.enroll(event, tester2);
@@ -259,7 +260,7 @@ class EventControllerTest {
         Account account = accountRepository.findByNickname("gudrb");
         Account tester1 = createAccount("tester1");
         Account tester2 = createAccount("tester2");
-        Event event = stubbingEvent();
+        Event event = stubbingEvent(EventType.FCFS);
         eventService.enroll(event, tester2);
         eventService.enroll(event, tester1);
         eventService.enroll(event, account);
@@ -275,6 +276,76 @@ class EventControllerTest {
         assertNull(enrollmentRepository.findByEventAndAccount(event, account));
     }
 
+    @Test
+    @DisplayName("참가 신청 수락")
+    @WithAccount("gudrb")
+    void accept() throws Exception {
+        Account manager = accountRepository.findByNickname("gudrb");
+        Account account = createAccount("member");
+        Event event = stubbingEvent(EventType.CONFIRMATIVE, manager);
+        eventService.enroll(event, account);
+        Enrollment enrollment = enrollmentRepository.findByEventAndAccount(event, account);
+
+        mockMvc.perform(get("/study/" + study.getPath() + "/events/" + event.getId() + "/enrollments/" + enrollment.getId() + "/accept"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/study/" + study.getEncodedPath() + "/events/" + event.getId()));
+
+        assertTrue(enrollment.isAccepted());
+    }
+
+    @Test
+    @DisplayName("참가 신청 거절")
+    @WithAccount("gudrb")
+    void reject() throws Exception {
+        Account manager = accountRepository.findByNickname("gudrb");
+        Account account = createAccount("member");
+        Event event = stubbingEvent(EventType.CONFIRMATIVE, manager);
+        eventService.enroll(event, account);
+        Enrollment enrollment = enrollmentRepository.findByEventAndAccount(event, account);
+
+        mockMvc.perform(get("/study/" + study.getPath() + "/events/" + event.getId() + "/enrollments/" + enrollment.getId() + "/reject"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/study/" + study.getEncodedPath() + "/events/" + event.getId()));
+
+        assertFalse(enrollment.isAccepted());
+    }
+
+    @Test
+    @DisplayName("출석 체크")
+    @WithAccount("gudrb")
+    void checkin() throws Exception {
+        Account manager = accountRepository.findByNickname("gudrb");
+        Account account = createAccount("member");
+        Event event = stubbingEvent(EventType.CONFIRMATIVE, manager);
+        eventService.enroll(event, account);
+        Enrollment enrollment = enrollmentRepository.findByEventAndAccount(event, account);
+        eventService.acceptEnrollment(event, enrollment);
+
+        mockMvc.perform(get("/study/" + study.getPath() + "/events/" + event.getId() + "/enrollments/" + enrollment.getId() + "/checkin"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/study/" + study.getEncodedPath() + "/events/" + event.getId()));
+
+        assertTrue(enrollment.isAttended());
+    }
+
+    @Test
+    @DisplayName("출석 체크 취소")
+    @WithAccount("gudrb")
+    void cancelCheckin() throws Exception {
+        Account manager = accountRepository.findByNickname("gudrb");
+        Account account = createAccount("member");
+        Event event = stubbingEvent(EventType.CONFIRMATIVE, manager);
+        eventService.enroll(event, account);
+        Enrollment enrollment = enrollmentRepository.findByEventAndAccount(event, account);
+        eventService.acceptEnrollment(event, enrollment);
+
+        mockMvc.perform(get("/study/" + study.getPath() + "/events/" + event.getId() + "/enrollments/" + enrollment.getId() + "/cancel-checkin"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/study/" + study.getEncodedPath() + "/events/" + event.getId()));
+
+        assertFalse(enrollment.isAttended());
+    }
+
     private void isNotAccepted(Account account, Event event) {
         assertFalse(enrollmentRepository.findByEventAndAccount(event, account).isAccepted());
     }
@@ -283,13 +354,18 @@ class EventControllerTest {
         assertTrue(enrollmentRepository.findByEventAndAccount(event, account).isAccepted());
     }
 
-    private Event stubbingEvent() {
+    private Event stubbingEvent(EventType eventType, Account... accounts) {
         Study study = studyRepository.findByPath(studyPath);
-        Account account = createAccount("manager");
+        Account account = null;
+        if (accounts == null || accounts.length == 0) {
+            account = createAccount("manager");
+        } else {
+            account = accounts[0];
+        }
         LocalDateTime now = LocalDateTime.now();
         EventForm eventForm = EventForm.builder()
                 .description("description")
-                .eventType(EventType.FCFS)
+                .eventType(eventType)
                 .endDateTime(now.plusWeeks(3))
                 .endEnrollmentDateTime(now.plusWeeks(1))
                 .limitOfEnrollments(2)
