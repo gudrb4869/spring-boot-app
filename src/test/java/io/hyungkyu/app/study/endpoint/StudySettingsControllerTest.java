@@ -80,7 +80,7 @@ class StudySettingsControllerTest {
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/study/" + studyPath + "/settings/description"));
-        Study study = studyService.getStudy(account, studyPath);
+        Study study = studyService.getStudyToUpdate(account, studyPath);
         assertEquals(shortDescriptionToBeUpdated, study.getShortDescription());
         assertEquals(fullDescriptionToBeUpdated, study.getFullDescription());
     }
