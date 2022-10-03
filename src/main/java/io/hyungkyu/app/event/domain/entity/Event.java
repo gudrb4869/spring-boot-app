@@ -1,5 +1,6 @@
 package io.hyungkyu.app.event.domain.entity;
 
+import io.hyungkyu.app.account.domain.UserAccount;
 import io.hyungkyu.app.account.domain.entity.Account;
 import io.hyungkyu.app.event.endpoint.form.EventForm;
 import io.hyungkyu.app.study.domain.entity.Study;
@@ -63,5 +64,37 @@ public class Event {
         event.study = study;
         event.createdDateTime = LocalDateTime.now();
         return event;
+    }
+
+    public boolean isEnrollableFor(UserAccount userAccount) {
+        return isNotClosed() && !isAlreadyEnrolled(userAccount);
+    }
+
+    public boolean isDisenrollableFor(UserAccount userAccount) {
+        return isNotClosed() && isAlreadyEnrolled(userAccount);
+    }
+
+    private boolean isNotClosed() {
+        return this.endEnrollmentDateTime.isAfter(LocalDateTime.now());
+    }
+
+    private boolean isAlreadyEnrolled(UserAccount userAccount) {
+        Account account = userAccount.getAccount();
+        for (Enrollment enrollment : enrollments) {
+            if (enrollment.getAccount().equals(account)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isAttended(UserAccount userAccount) {
+        Account account = userAccount.getAccount();
+        for (Enrollment enrollment : enrollments) {
+            if (enrollment.getAccount().equals(account) && enrollment.isAttended()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

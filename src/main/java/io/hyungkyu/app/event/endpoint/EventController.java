@@ -5,9 +5,11 @@ import io.hyungkyu.app.account.support.CurrentUser;
 import io.hyungkyu.app.event.application.EventService;
 import io.hyungkyu.app.event.domain.entity.Event;
 import io.hyungkyu.app.event.endpoint.form.EventForm;
+import io.hyungkyu.app.event.infra.repository.EventRepository;
 import io.hyungkyu.app.event.validator.EventValidator;
 import io.hyungkyu.app.study.application.StudyService;
 import io.hyungkyu.app.study.domain.entity.Study;
+import io.hyungkyu.app.study.infra.repository.StudyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,6 +26,8 @@ public class EventController {
 
     private final StudyService studyService;
     private final EventService eventService;
+    private final EventRepository eventRepository;
+    private final StudyRepository studyRepository;
     private final EventValidator eventValidator;
 
     @InitBinder("eventForm")
@@ -51,5 +55,14 @@ public class EventController {
         }
         Event event = eventService.createEvent(study, eventForm, account);
         return "redirect:/study/" + study.getEncodedPath() + "/events/" + event.getId();
+    }
+
+    @GetMapping("/events/{id}")
+    public String getEvent(@CurrentUser Account account, @PathVariable String path, @PathVariable Long id, Model model) {
+        model.addAttribute(account);
+        model.addAttribute(eventRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 모임은 존재하지 않습니다.")));
+        model.addAttribute(studyRepository.findStudyWithManagersByPath(path));
+        return "event/view";
     }
 }
