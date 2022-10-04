@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Transactional(readOnly = true)
-public interface StudyRepository extends JpaRepository<Study, Long> {
+public interface StudyRepository extends JpaRepository<Study, Long>, StudyRepositoryExtension {
     boolean existsByPath(String path);
 
     // Study.withAll EntityGraph를 findByPath 메소드를 사용할 때 적용한다는 뜻임.
