@@ -5,16 +5,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor
 @Getter
 @ToString
+@NamedEntityGraph(
+        name = "Enrollment.withEventAndStudy",
+        attributeNodes = {
+                @NamedAttributeNode(value = "event", subgraph = "study")
+        },
+        subgraphs = @NamedSubgraph(name = "study", attributeNodes = @NamedAttributeNode("study"))
+) // 정의된 하위 그래프를 참조할 수 있게 해줌. Enrollment가 Study를 참조하고 있지 않기 때문에 event를 통해 Study를 참조하기위해 사용하였음.
 public class Enrollment {
     @Id
     @GeneratedValue

@@ -1,10 +1,12 @@
 package io.hyungkyu.app.modules.study.infra.repository;
 
+import io.hyungkyu.app.modules.account.domain.entity.Account;
 import io.hyungkyu.app.modules.study.domain.entity.Study;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Transactional(readOnly = true)
@@ -34,6 +36,13 @@ public interface StudyRepository extends JpaRepository<Study, Long>, StudyReposi
 
     @EntityGraph(attributePaths = {"managers", "members"})
     Study findStudyWithManagersAndMembersById(Long id);
+
+    @EntityGraph(attributePaths = {"tags", "zones"})
+    List<Study> findFirst9ByPublishedAndClosedOrderByPublishedDateTimeDesc(boolean published, boolean closed);
+
+    List<Study> findFirst5ByManagersContainingAndClosedOrderByPublishedDateTimeDesc(Account account, boolean closed);
+
+    List<Study> findFirst5ByMembersContainingAndClosedOrderByPublishedDateTimeDesc(Account account, boolean closed);
 
     /* find, ByColumnName 과 같은 정해진 문구는 SQL문을 생성할 때 영향을 주지만 그 사이에 있는 값은 메소드를 구분하는
     기능만 가지고 있을 뿐 쿼리에는 영향을 주지 않음.
