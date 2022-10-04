@@ -1,6 +1,7 @@
 package io.hyungkyu.app.modules.study.application;
 
 import io.hyungkyu.app.modules.account.domain.entity.Account;
+import io.hyungkyu.app.modules.study.event.StudyCreatedEvent;
 import io.hyungkyu.app.modules.zone.domain.entity.Zone;
 import io.hyungkyu.app.modules.study.domain.entity.Study;
 import io.hyungkyu.app.modules.study.endpoint.form.StudyForm;
@@ -8,6 +9,7 @@ import io.hyungkyu.app.modules.study.endpoint.form.StudyDescriptionForm;
 import io.hyungkyu.app.modules.study.infra.repository.StudyRepository;
 import io.hyungkyu.app.modules.tag.domain.entity.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,10 +21,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class StudyService {
 
     private final StudyRepository studyRepository;
+    private final ApplicationEventPublisher eventPublisher; // 이벤트를 발생시키기 위해 빈을 주입함.
 
     public Study createNewStudy(StudyForm studyForm, Account account) {
         Study study = Study.from(studyForm);
         study.addManager(account);
+        eventPublisher.publishEvent(new StudyCreatedEvent(study));
+        /** 스터디가 만들어지는 시점에 이벤트를 발생시킴.
+         * 비동기처리(다른 스레드에서 처리)를 하지 않으면 여기서 RuntimeException이 발생했을 경우 @Transactional의 영향을 받게되어 rollback이 발생하므로 주의해야 함.
+         * */
         return studyRepository.save(study);
     }
 
