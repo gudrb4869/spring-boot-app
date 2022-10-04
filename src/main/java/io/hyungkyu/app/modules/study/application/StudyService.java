@@ -26,10 +26,6 @@ public class StudyService {
     public Study createNewStudy(StudyForm studyForm, Account account) {
         Study study = Study.from(studyForm);
         study.addManager(account);
-        eventPublisher.publishEvent(new StudyCreatedEvent(study));
-        /** 스터디가 만들어지는 시점에 이벤트를 발생시킴.
-         * 비동기처리(다른 스레드에서 처리)를 하지 않으면 여기서 RuntimeException이 발생했을 경우 @Transactional의 영향을 받게되어 rollback이 발생하므로 주의해야 함.
-         * */
         return studyRepository.save(study);
     }
 
@@ -112,6 +108,10 @@ public class StudyService {
 
     public void publish(Study study) {
         study.publish();
+        eventPublisher.publishEvent(new StudyCreatedEvent(study));
+        /** 스터디가 공개되는 시점에 이벤트를 발생시킴.
+         * 비동기처리(다른 스레드에서 처리)를 하지 않으면 여기서 RuntimeException이 발생했을 경우 @Transactional의 영향을 받게되어 rollback이 발생하므로 주의해야 함.
+         * */
     }
 
     public void close(Study study) {
