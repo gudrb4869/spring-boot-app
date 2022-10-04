@@ -1,6 +1,7 @@
 package io.hyungkyu.app.modules.study.endpoint;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.hyungkyu.app.infra.IntegrationTest;
 import io.hyungkyu.app.modules.account.WithAccount;
 import io.hyungkyu.app.modules.account.domain.entity.Account;
 import io.hyungkyu.app.modules.zone.domain.entity.Zone;
@@ -16,20 +17,15 @@ import io.hyungkyu.app.modules.tag.infra.repository.TagRepository;
 import io.hyungkyu.app.modules.zone.infra.repository.ZoneRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@Transactional
-@AutoConfigureMockMvc
+@IntegrationTest
 class StudySettingsControllerTest {
     @Autowired MockMvc mockMvc;
     @Autowired AccountRepository accountRepository;

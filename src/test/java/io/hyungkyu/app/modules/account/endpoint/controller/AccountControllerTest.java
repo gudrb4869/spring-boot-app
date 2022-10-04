@@ -1,5 +1,6 @@
 package io.hyungkyu.app.modules.account.endpoint.controller;
 
+import io.hyungkyu.app.infra.IntegrationTest;
 import io.hyungkyu.app.modules.account.domain.entity.Account;
 import io.hyungkyu.app.modules.account.infra.repository.AccountRepository;
 import io.hyungkyu.app.infra.mail.EmailMessage;
@@ -7,8 +8,6 @@ import io.hyungkyu.app.infra.mail.EmailService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,8 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@IntegrationTest
 class AccountControllerTest {
     @Autowired
     MockMvc mockMvc;

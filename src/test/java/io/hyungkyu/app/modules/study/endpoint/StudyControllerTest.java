@@ -1,5 +1,6 @@
 package io.hyungkyu.app.modules.study.endpoint;
 
+import io.hyungkyu.app.infra.IntegrationTest;
 import io.hyungkyu.app.modules.account.WithAccount;
 import io.hyungkyu.app.modules.account.domain.entity.Account;
 import io.hyungkyu.app.modules.account.infra.repository.AccountRepository;
@@ -10,19 +11,14 @@ import io.hyungkyu.app.modules.study.infra.repository.StudyRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@Transactional
-@AutoConfigureMockMvc
+@IntegrationTest
 class StudyControllerTest {
     @Autowired MockMvc mockMvc;
     @Autowired AccountRepository accountRepository;
