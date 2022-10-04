@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.net.URLEncoder;
@@ -89,6 +90,9 @@ public class Study {
 
     @Accessors(fluent = true) // isUseBanner 메소드가 생성되는 것을 방지하기 위해 @Accessors 어노테이션을 추가하였음.
     private boolean useBanner;
+
+    @ColumnDefault(value = "0")
+    private Integer memberCount = 0;
 
     public static Study from(StudyForm studyForm) {
         Study study = new Study();
@@ -196,10 +200,12 @@ public class Study {
 
     public void addMember(Account account) {
         this.members.add(account);
+        this.memberCount++;
     }
 
     public void removeMember(Account account) {
         this.members.remove(account);
+        this.memberCount--;
     }
 
     public String getEncodedPath() {
